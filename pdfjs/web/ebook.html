@@ -27,10 +27,33 @@ canvas{
   box-shadow:0 0 20px rgba(0,0,0,.6);
 }
 
+/* Marca d’água */
+#watermark{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:5vw;
+  font-weight:700;
+  color:rgba(255,255,255,.07);
+  transform:rotate(-30deg);
+  pointer-events:none;
+  z-index:999;
+  text-align:center;
+}
 </style>
 </head>
 
 <body>
+
+<!-- ✅ CONTAINER QUE ESTAVA FALTANDO -->
+<div id="pages"></div>
+
+<div id="watermark">
+  USO PESSOAL • PROIBIDO DOWNLOAD<br>
+  IMPRESSÃO OU COMPARTILHAMENTO
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
