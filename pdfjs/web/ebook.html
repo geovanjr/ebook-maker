@@ -1,100 +1,56 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-<meta charset="utf-8">
-<title>Leitor do e-book</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-html,body{
-  margin:0;
-  background:#111;
-  overflow-x:hidden;
-  user-select:none;
-  color:white;
-  font-family:Arial, Helvetica, sans-serif;
-}
-
-#pages{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:20px;
-  padding:40px 0;
-}
-
-canvas{
-  max-width:95%;
-  background:white;
-  box-shadow:0 0 20px rgba(0,0,0,.6);
-}
-
-/* Marca d’água */
-#watermark{
-  position:fixed;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:5vw;
-  font-weight:700;
-  color:rgba(255,255,255,.07);
-  transform:rotate(-30deg);
-  pointer-events:none;
-  z-index:999;
-  text-align:center;
-}
-</style>
+  <title>PDF Viewer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.css">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    #viewerContainer {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      overflow: auto;
+    }
+    .pdfViewer {
+      width: 100%;
+      height: 100%;
+    }
+    .hidden-toolbar .pdfViewer .toolbar {
+      display: none !important;
+    }
+  </style>
 </head>
-
 <body>
+  <div id="viewerContainer" class="hidden-toolbar">
+    <div id="viewer" class="pdfViewer"></div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.js"></script>
+  <script>
+    var url = "../../ebook.pdf";
+    
+    var loadingTask = pdfjsLib.getDocument(url);
+    loadingTask.promise.then(function(pdf) {
+      var container = document.getElementById('viewerContainer');
+      var eventBus = new pdfjsViewer.EventBus();
+      var pdfViewer = new pdfjsViewer.PDFViewer({
+        container: container,
+        eventBus: eventBus
+      });
 
-<div id="pages"></div>
+      pdfViewer.setDocument(pdf);
+    }, function (reason) {
+      console.error(reason);
+    });
 
-<div id="watermark">
-  USO PESSOAL • PROIBIDO DOWNLOAD<br>
-  IMPRESSÃO OU COMPARTILHAMENTO
-</div>
-
-<script type="module">
-import * as pdfjsLib from "../build/pdf.mjs";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = "../build/pdf.worker.mjs";
-
-const url = "../../ebook.pdf";
-const container = document.getElementById("pages");
-
-const pdf = await pdfjsLib.getDocument(url).promise;
-
-for(let i=1;i<=pdf.numPages;i++){
-  const page = await pdf.getPage(i);
-  const viewport = page.getViewport({ scale: 1.4 });
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
-
-  container.appendChild(canvas);
-
-  await page.render({ canvasContext: ctx, viewport }).promise;
-}
-
-// Bloqueios
-document.addEventListener("contextmenu", e=>e.preventDefault());
-document.addEventListener("keydown", e=>{
-  if(
-    (e.ctrlKey && ["s","p","u"].includes(e.key.toLowerCase())) ||
-    e.key === "PrintScreen"
-  ){
-    e.preventDefault();
-    alert("Download, impressão e captura estão desativados.");
-  }
-});
-document.addEventListener("dragstart", e=>e.preventDefault());
-</script>
-
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  </script>
 </body>
 </html>
