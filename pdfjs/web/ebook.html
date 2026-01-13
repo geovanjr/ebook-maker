@@ -1,106 +1,88 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <title>Leitor do e-book</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title>Leitor do e-book</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- PDF.js styles -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.css">
+<style>
+html,body{
+  margin:0;
+  background:#111;
+  overflow-x:hidden;
+  user-select:none;
+}
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #111;
-      user-select: none;
-    }
+#pages{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  padding:20px 0;
+}
 
-    #viewerContainer {
-      position: fixed;
-      inset: 0;
-      overflow: auto;
-    }
+canvas{
+  max-width:95%;
+  box-shadow:0 0 20px rgba(0,0,0,.6);
+}
 
-    canvas {
-      margin: 0 auto;
-      display: block;
-    }
-
-    /* Marca d'água (pode editar o texto depois) */
-    #watermark {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 5vw;
-      font-weight: 700;
-      color: rgba(255,255,255,0.08);
-      transform: rotate(-30deg);
-      pointer-events: none;
-      z-index: 9999;
-      text-align: center;
-      line-height: 1.3;
-    }
-  </style>
+/* Marca d'água */
+#watermark{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:5vw;
+  font-weight:700;
+  color:rgba(255,255,255,.07);
+  transform:rotate(-30deg);
+  pointer-events:none;
+  z-index:999;
+  text-align:center;
+}
+</style>
 </head>
 
 <body>
 
-  <div id="viewerContainer">
-    <div id="viewer" class="pdfViewer"></div>
-  </div>
+<div id="pages"></div>
 
-  <div id="watermark">
-    USO PESSOAL • PROIBIDO DOWNLOAD<br>IMPRESSÃO OU COMPARTILHAMENTO
-  </div>
+<div id="watermark">
+  USO PESSOAL • PROIBIDO DOWNLOAD<br>IMPRESSÃO OU COMPARTILHAMENTO
+</div>
 
-  <!-- PDF.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
-  <script>
-    // Worker obrigatório
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
 
-    // Caminho correto do seu PDF
-    const url = "../../ebook.pdf";
+const url = "../../ebook.pdf";
+const container = document.getElementById("pages");
 
-    const container = document.getElementById('viewerContainer');
-    const eventBus = new pdfjsViewer.EventBus();
+pdfjsLib.getDocument(url).promise.then(async pdf => {
 
-    const pdfViewer = new pdfjsViewer.PDFViewer({
-      container,
-      eventBus
-    });
+  for(let i=1;i<=pdf.numPages;i++){
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1.5 });
 
-    pdfjsLib.getDocument(url).promise.then(pdf => {
-      pdfViewer.setDocument(pdf);
-    }).catch(err => {
-      console.error("Erro ao carregar PDF:", err);
-      alert("Erro ao carregar o ebook.");
-    });
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-    // Bloqueios básicos
-    document.addEventListener('contextmenu', e => e.preventDefault());
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
 
-    document.addEventListener('keydown', function(e) {
-      if (
-        (e.ctrlKey && ['s','p','u'].includes(e.key.toLowerCase())) ||
-        e.key === 'PrintScreen'
-      ) {
-        e.preventDefault();
-        alert('Download, impressão e captura foram desativados.');
-      }
-    });
+    container.appendChild(canvas);
 
-    document.addEventListener('dragstart', e => e.preventDefault());
-  </script>
+    await page.render({canvasContext:ctx, viewport}).promise;
+  }
 
-</body>
-</html>
+}).catch(err=>{
+  console.error(err);
+  alert("Erro ao carregar o ebook.");
+});
+
+// Bloqueios básicos
+document.addEventListener("contextm
