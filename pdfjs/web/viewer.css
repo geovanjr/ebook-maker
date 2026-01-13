@@ -8437,12 +8437,7 @@ dialog :link{
 #presentationModeButton {
   display: inline-flex !important;
 }
-/* ==== REMOVE SCROLL DUPLICADO ==== */
-
-html, body {
-  overflow: hidden !important;
-}
 
 #viewerContainer {
-  overflow: hidden !important;
+  overflow: auto;
 }
