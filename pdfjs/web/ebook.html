@@ -64,4 +64,18 @@ pdfjsLib.getDocument(url).promise.then(async pdf => {
 });
 
 // Bloqueios básicos
-document.addEventListener("contextm
+document.addEventListener("contextmenu", e=>e.preventDefault());
+document.addEventListener("keydown", e=>{
+  if(
+    (e.ctrlKey && ["s","p","u"].includes(e.key.toLowerCase())) ||
+    e.key === "PrintScreen"
+  ){
+    e.preventDefault();
+    alert("Download, impressão e captura estão desativados.");
+  }
+});
+document.addEventListener("dragstart", e=>e.preventDefault());
+</script>
+
+</body>
+</html>
