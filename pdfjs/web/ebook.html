@@ -2,55 +2,76 @@
 <html>
 <head>
   <title>PDF Viewer</title>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.css">
+
   <style>
     body {
       margin: 0;
       overflow: hidden;
     }
+
+    /* PDF.js exige position:absolute */
     #viewerContainer {
       width: 100vw;
       height: 100vh;
-      position: absolute;
+      position: absolute; /* 👈 essencial */
       top: 0;
       left: 0;
       overflow: auto;
     }
+
     .pdfViewer {
       width: 100%;
       height: 100%;
     }
+
     .hidden-toolbar .pdfViewer .toolbar {
       display: none !important;
     }
   </style>
 </head>
+
 <body>
+
   <div id="viewerContainer" class="hidden-toolbar">
     <div id="viewer" class="pdfViewer"></div>
   </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.js"></script>
+
   <script>
-    var url = "ebook.pdf";
-    
+    /* 👇 elimina erro interno */
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
+
+    /* 👇 caminho do PDF */
+    var url = "ebook.pdf"; 
+    // se NÃO estiver na mesma pasta, exemplo:
+    // var url = "../../ebook.pdf";
+
     var loadingTask = pdfjsLib.getDocument(url);
+
     loadingTask.promise.then(function(pdf) {
       var container = document.getElementById('viewerContainer');
       var eventBus = new pdfjsViewer.EventBus();
+
       var pdfViewer = new pdfjsViewer.PDFViewer({
         container: container,
         eventBus: eventBus
       });
 
       pdfViewer.setDocument(pdf);
-    }, function (reason) {
-      console.error(reason);
+
+    }).catch(function (reason) {
+      console.error("ERRO AO CARREGAR PDF:", reason);
     });
 
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
     });
   </script>
+
 </body>
 </html>
