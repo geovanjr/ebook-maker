@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+  <meta charset="UTF-8">
   <title>PDF Viewer</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.css">
@@ -15,7 +16,7 @@
     #viewerContainer {
       width: 100vw;
       height: 100vh;
-      position: absolute; /* 👈 essencial */
+      position: absolute;
       top: 0;
       left: 0;
       overflow: auto;
@@ -29,11 +30,46 @@
     .hidden-toolbar .pdfViewer .toolbar {
       display: none !important;
     }
+
+    /* ===== LOADING OVERLAY ===== */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      font-family: Arial, sans-serif;
+      color: #444;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #ddd;
+      border-top-color: #555;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
 <body>
 
+  <!-- LOADING -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Carregando e-book…</p>
+  </div>
+
+  <!-- PDF VIEWER -->
   <div id="viewerContainer" class="hidden-toolbar">
     <div id="viewer" class="pdfViewer"></div>
   </div>
@@ -42,13 +78,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf_viewer.min.js"></script>
 
   <script>
-    /* 👇 elimina erro interno */
+    /* elimina erro interno */
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
 
-    /* 👇 caminho do PDF */
-    var url = "ebook.pdf"; 
-    // se NÃO estiver na mesma pasta, exemplo:
+    /* caminho do PDF */
+    var url = "ebook.pdf";
+    // exemplo fora da pasta:
     // var url = "../../ebook.pdf";
 
     var loadingTask = pdfjsLib.getDocument(url);
@@ -64,10 +100,18 @@
 
       pdfViewer.setDocument(pdf);
 
+      /* remove loading quando o PDF estiver pronto */
+      eventBus.on("pagesinit", function () {
+        document.getElementById("loadingOverlay").style.display = "none";
+      });
+
     }).catch(function (reason) {
       console.error("ERRO AO CARREGAR PDF:", reason);
+      document.getElementById("loadingOverlay").innerHTML =
+        "<p>Erro ao carregar o e-book.</p>";
     });
 
+    /* bloqueia menu de contexto */
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
     });
