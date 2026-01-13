@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Leitor do e-book</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.syncfusion.com/ej2/26.2.11/ej2-base/styles/material.css" rel="stylesheet">
+</head>
+
+<body style="margin:0;">
+
+  <div id="pdfViewer" style="height:100vh;"></div>
+
+  <script src="https://cdn.syncfusion.com/ej2/26.2.11/dist/ej2.min.js"></script>
+
+  <script>
+    var viewer = new ej.pdfviewer.PdfViewer({
+        documentPath: "../../../ebook.pdf",
+        enableDownload: false,
+        enablePrint: false
+    });
+
+    viewer.appendTo("#pdfViewer");
+  </script>
+
+</body>
+</html>
