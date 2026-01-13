@@ -8428,3 +8428,12 @@ dialog :link{
     display:none;
   }
 }
+
+#printButton,
+#downloadButton {
+  display: none !important;
+}
+#presentationMode,
+#presentationModeButton {
+  display: inline-flex !important;
+}
