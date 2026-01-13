@@ -11,6 +11,19 @@ html,body{
   background:#111;
   overflow-x:hidden;
   user-select:none;
+  color:white;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+#status{
+  position:fixed;
+  top:10px;
+  left:10px;
+  z-index:9999;
+  background:rgba(0,0,0,.7);
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:13px;
 }
 
 #pages{
@@ -19,12 +32,13 @@ html,body{
   flex-direction:column;
   align-items:center;
   gap:20px;
-  padding:20px 0;
+  padding:60px 0 20px;
 }
 
 canvas{
   max-width:95%;
   box-shadow:0 0 20px rgba(0,0,0,.6);
+  background:white;
 }
 
 /* Marca d’água */
@@ -47,7 +61,7 @@ canvas{
 
 <body>
 
-<!-- ✅ CONTAINER QUE ESTAVA FALTANDO -->
+<div id="status">Carregando PDF...</div>
 <div id="pages"></div>
 
 <div id="watermark">
@@ -58,17 +72,23 @@ canvas{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
 <script>
+const statusBox = document.getElementById("status");
+
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js";
 
 const url = "../../ebook.pdf";
-const container = document.getElementById("pages");
+statusBox.innerText = "Buscando: " + url;
 
 pdfjsLib.getDocument(url).promise.then(async pdf => {
 
+  statusBox.innerText = "PDF carregado. Páginas: " + pdf.numPages;
+
   for(let i=1;i<=pdf.numPages;i++){
+    statusBox.innerText = "Renderizando página " + i + " de " + pdf.numPages;
+
     const page = await pdf.getPage(i);
-    const viewport = page.getViewport({ scale: 1.5 });
+    const viewport = page.getViewport({ scale: 1.3 });
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -76,14 +96,17 @@ pdfjsLib.getDocument(url).promise.then(async pdf => {
     canvas.width = viewport.width;
     canvas.height = viewport.height;
 
-    container.appendChild(canvas);
+    document.getElementById("pages").appendChild(canvas);
 
     await page.render({canvasContext:ctx, viewport}).promise;
   }
 
+  statusBox.innerText = "Pronto.";
+
 }).catch(err=>{
   console.error(err);
-  alert("Erro ao carregar o ebook.");
+  statusBox.innerText = "❌ ERRO: " + err.message;
+  alert("Erro ao carregar o ebook. Veja a caixa no canto.");
 });
 
 // Bloqueios básicos
