@@ -8443,8 +8443,6 @@ html, body {
   overflow: hidden !important;
 }
 
-#outerContainer,
-#mainContainer,
 #viewerContainer {
   overflow: hidden !important;
 }
