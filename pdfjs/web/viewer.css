@@ -7210,7 +7210,7 @@ body.wait::before{
 }
 
 #viewerContainer{
-  overflow:auto;
+  overflow:hidden;
   position:absolute;
   inset:var(--toolbar-height) 0 0;
   outline:none;
