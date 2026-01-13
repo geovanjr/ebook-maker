@@ -8441,3 +8441,16 @@ dialog :link{
 #viewerContainer {
   overflow: auto;
 }
+/* ==== BLOQUEAR DOWNLOAD E IMPRESSÃO ==== */
+
+/* Botões da barra */
+#download,
+#print {
+  display: none !important;
+}
+
+/* Itens do menu (setinha) */
+#secondaryDownload,
+#secondaryPrint {
+  display: none !important;
+}
